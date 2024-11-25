@@ -1,0 +1,81 @@
+import os
+import shutil
+import stat
+import time
+
+
+class FileManager:
+    def create_directory(self, path): # Создание каталога
+        os.makedirs(path, exist_ok=True)
+        print(f"Каталог '{path}' успешно создан.")
+
+    def list_directory(self, path): # Список всех файлов и подкаталогов
+        return os.listdir(path)
+
+    def open_file(self, file_path): # Открытие файла
+        with open(file_path, 'r') as f:
+            return f.read()
+
+    def create_file(self, file_path, content=''): # Создание файла
+        with open(file_path, 'w') as f:
+            f.write(content)
+        print(f"Файл '{file_path}' успешно создан.")
+
+    def move_file(self, src, dest): # Перемещение файла
+        shutil.move(src, dest)
+        print(f"Перемещение '{src}' в '{dest}'.")
+
+    def rename_file(self, old_name, new_name): # Переименовывание файла
+        os.rename(old_name, new_name)
+        print(f"Смена названия с '{old_name}' на '{new_name}'.")
+
+    def copy_file(self, src, dest): # Копирование файла
+        shutil.copy2(src, dest)
+        print(f"Копирование с '{src}' в '{dest}'.")
+
+    def delete_file(self, file_path): # Удаление файла
+        os.remove(file_path)
+        print(f"Файл '{file_path}' удален.")
+
+    def change_permissions(self, path, mode): # Изменяет права доступа
+        os.chmod(path, mode)
+        print(f"Изменение прав '{path}' на {oct(mode)}.")
+
+    def search_file(self, directory, file_name): # Поиск файла
+        for root, dirs, files in os.walk(directory):
+            if file_name in files:
+                print(f"Найден '{file_name}' в: {os.path.join(root, file_name)}")
+                return os.path.join(root, file_name)
+        print(f"Файл '{file_name}' не найден в каталоге '{directory}'.")
+
+    def change_attributes(self, path, atime=None, mtime=None): # Изменение атрибутов
+        if atime:
+            os.utime(path, (atime, None))
+            print(f"Изменено время доступа к '{path}'.")
+        if mtime:
+            os.utime(path, (None, mtime))
+            print(f"Изменено время модификации '{path}'.")
+
+    def find_directory(self, parent_dir, dir_name): # Поиск каталогов и файлов
+        for root, dirs, files in os.walk(parent_dir):
+            if dir_name in dirs:
+                print(f"Найден каталог '{dir_name}' в {os.path.join(root, dir_name)}")
+                return os.path.join(root, dir_name)
+        print(f"Каталог '{dir_name}' не найден в '{parent_dir}'.")
+
+
+if __name__ == "__main__":
+    fm = FileManager()
+
+    # Примеры использования
+    fm.create_directory('test_dir')
+    fm.create_file('test_dir/example.txt', 'Hello, World!')
+    print(fm.open_file('test_dir/example.txt'))
+    fm.move_file('test_dir/example.txt', 'test_dir/example_moved.txt')
+    fm.rename_file('test_dir/example_moved.txt', 'test_dir/example_renamed.txt')
+    fm.copy_file('test_dir/example_renamed.txt', 'test_dir/example_copy.txt')
+    fm.delete_file('test_dir/example_copy.txt')
+    fm.change_permissions('test_dir/example_renamed.txt', stat.S_IRWXU)
+    fm.search_file('test_dir', 'example_renamed.txt')
+    fm.find_directory('.', 'test_dir')
+    fm.change_attributes('test_dir/example_renamed.txt', mtime=time.time())
