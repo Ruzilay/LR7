@@ -1,0 +1,74 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+class DatabaseSystem:
+    def __init__(self, db_name):
+        self.db_name = db_name
+        self.data = pd.DataFrame()
+
+    def create_database(self):
+        if not os.path.exists(self.db_name):
+            self.data.to_csv(self.db_name, index=False)
+            print(f"База данных {self.db_name} создана.")
+        else:
+            print("База данных уже существует.")
+
+    def load_data(self):
+        if os.path.exists(self.db_name):
+            self.data = pd.read_csv(self.db_name)
+            print("Данные загружены.")
+        else:
+            print("Файл базы данных не найден.")
+
+    def save_data(self, file_format='csv'):
+        if file_format == 'csv':
+            self.data.to_csv(self.db_name, index=False)
+        elif file_format == 'xlsx':
+            self.data.to_excel(self.db_name.replace('.csv', '.xlsx'), index=False)
+        elif file_format == 'txt':
+            self.data.to_csv(self.db_name.replace('.csv', '.txt'), index=False, sep='\t')
+        else:
+            print("Неподдерживаемый формат.")
+        print(f"Данные сохранены в формате {file_format}.")
+
+    def add_record(self, record):
+        self.data = self.data.append(record, ignore_index=True)
+        print("Запись добавлена.")
+
+    def update_record(self, index, updated_record):
+        if index in self.data.index:
+            self.data.loc[index] = updated_record
+            print("Запись обновлена.")
+        else:
+            print("Индекс не найден.")
+
+    def delete_record(self, index):
+        if index in self.data.index:
+            self.data = self.data.drop(index)
+            print("Запись удалена.")
+        else:
+            print("Индекс не найден.")
+
+    def visualize_data(self):
+        self.data.hist()
+        plt.title("Гистограмма данных")
+        plt.show()
+
+    def generate_report(self):
+        print("Отчет по данным:")
+        print(self.data)
+
+db_system = DatabaseSystem('database.csv')
+db_system.create_database() # Создание базы данных
+db_system.load_data()
+
+db_system.add_record({'Column1': 'Data1', 'Column2': 123}) # Добавления записи
+db_system.update_record(0, {'Column1': 'UpdatedData', 'Column2': 456}) # Обновления записи
+db_system.delete_record(0)  # Удаление записи
+
+# Сохранение и визуализация данных
+db_system.save_data('csv')
+db_system.visualize_data()
+db_system.generate_report()
+
